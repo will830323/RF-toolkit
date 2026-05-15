@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RF Planning Toolkit</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #fafafa;
+  color: #1a1a1a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.app { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.header { margin-bottom: 16px; }
+.header h1 {
+  margin: 0 0 4px 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.header .sub {
+  color: #666;
+  font-size: 13px;
+}
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab {
+  padding: 10px 18px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.15s;
+}
+.tab:hover { color: #1a1a1a; }
+.tab.active {
+  color: #c2410c;
+  border-bottom-color: #c2410c;
+}
+.panel { display: none; }
+.panel.active { display: block; }
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.card h3 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #555;
+}
+.card h4 {
+  margin: 14px 0 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+.row {
+  display: grid;
+  grid-template-columns: 1fr 90px 50px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.row label { font-size: 13px; color: #333; }
+.row input, .row select {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+  text-align: right;
+}
+.row input:focus, .row select:focus {
+  outline: none;
+  border-color: #c2410c;
+  box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.1);
+}
+.row .unit { font-size: 12px; color: #999; }
+.row select { text-align: left; }
+
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.preset-btn {
+  padding: 5px 10px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #444;
+  transition: all 0.15s;
+}
+.preset-btn:hover {
+  background: #ffeed5;
+  border-color: #c2410c;
+  color: #c2410c;
+}
+.preset-btn.active {
+  background: #c2410c;
+  color: #fff;
+  border-color: #c2410c;
+}
+
+.result-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #ececec;
+  font-size: 13px;
+}
+.result-line:last-child { border-bottom: none; }
+.result-line .lbl { color: #555; }
+.result-line .val { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 500; }
+
+.headline {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fdba74;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 10px 0;
+}
+.headline .h-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9a3412;
+  font-weight: 600;
+}
+.headline .h-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #7c2d12;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  margin-top: 2px;
+}
+.headline .h-detail {
+  font-size: 12px;
+  color: #9a3412;
+  margin-top: 2px;
+}
+
+.bind-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-left: 6px;
+}
+.bind-tag.binding { background: #fee2e2; color: #991b1b; }
+.bind-tag.ok { background: #d1fae5; color: #065f46; }
+
+.tip {
+  font-size: 12px;
+  color: #666;
+  background: #f8f8f6;
+  padding: 8px 10px;
+  border-left: 3px solid #c2410c;
+  margin-top: 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-bar input, .filter-bar select {
+  padding: 7px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+.filter-bar input { flex: 1; min-width: 200px; }
+
+.kpi-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 800px) { .kpi-card { grid-template-columns: 1fr; gap: 8px; } }
+.kpi-card .sym { font-weight: 600; color: #1a1a1a; }
+.kpi-card .cat {
+  display: inline-block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.cat.access { background: #dbeafe; color: #1e40af; }
+.cat.retain { background: #fee2e2; color: #991b1b; }
+.cat.mobil { background: #fef3c7; color: #92400e; }
+.cat.thru { background: #d1fae5; color: #065f46; }
+.cat.util { background: #ede9fe; color: #5b21b6; }
+.cat.hw { background: #f3f4f6; color: #374151; }
+
+.kpi-card h5 {
+  margin: 0 0 4px 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+  font-weight: 600;
+}
+.kpi-card .checks, .kpi-card .causes { font-size: 13px; color: #333; }
+.kpi-card .checks ol, .kpi-card .causes ul { margin: 0; padding-left: 18px; }
+.kpi-card .checks li, .kpi-card .causes li { margin-bottom: 3px; }
+
+.target-table, .vendor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.target-table th, .target-table td,
+.vendor-table th, .vendor-table td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid #eee;
+}
+.target-table th, .vendor-table th {
+  background: #f8f8f8;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #555;
+  position: sticky;
+  top: 0;
+}
+.target-table tbody tr:hover, .vendor-table tbody tr:hover { background: #fff7ed; }
+.target-table .ok { color: #065f46; font-weight: 500; }
+.target-table .warn { color: #92400e; font-weight: 500; }
+
+.vendor-table td:first-child { font-weight: 600; color: #c2410c; }
+.vendor-table td { font-size: 12.5px; }
+.mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  background: #f5f5f5;
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #c2410c;
+}
+
+.legend-note { font-size: 12px; color: #666; font-style: italic; margin-top: 6px; }
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #c2410c;
+  margin: 24px 0 8px 0;
+}
+.section-title:first-child { margin-top: 0; }
+
+details {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+details summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::after { content: "+"; color: #999; font-size: 16px; font-weight: 300; }
+details[open] summary::after { content: "−"; }
+details > div { padding: 0 14px 14px 14px; font-size: 13px; }
+
+.formula {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  background: #1a1a1a;
+  color: #fdba74;
+  padding: 8px 10px;
+  border-radius: 4px;
+  margin: 8px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.footer-note {
+  margin-top: 24px;
+  padding: 12px;
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>RF Planning Toolkit</h1>
+    <div class="sub">Link budget → MAPL → cell radius → site count · KPI playbook · vendor cross-reference</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="dimensioning">Dimensioning Calculator</button>
+    <button class="tab" data-tab="kpi">KPI Troubleshooting Playbook</button>
+    <button class="tab" data-tab="vendor">Vendor Feature Cross-Reference</button>
+    <button class="tab" data-tab="ref">Reference Cheatsheet</button>
+  </div>
+
+  <div class="panel active" id="panel-dimensioning">
+    <div class="card">
+      <h3>Quick Presets</h3>
+      <div class="preset-row" id="presets"></div>
+      <div class="legend-note">Presets auto-fill typical Tx power, bandwidth, antenna gain and propagation model. Override any field below.</div>
+    </div>
+
+    <div class="calc-grid">
+      <div>
+        <div class="card">
+          <h3>Downlink Tx Side (gNB / eNB)</h3>
+          <div class="row"><label>Tx power (per port)</label><input type="number" id="txPwr" step="0.1"><span class="unit">dBm</span></div>
+          <div class="row"><label>Combining / MIMO gain</label><input type="number" id="combGain" step="0.1"><span class="unit">dB</span></div>
+          <div class="row"><label>Antenna gain</label><input type="number" id="antGain" step="0.1"><span class="unit">dBi</span></div>
+          <div class="row"><label>Feeder / jumper loss</label><input type="number" id="feedLoss" step="0.1"><span class="unit">dB</span></div>
+        </div>
+
+        <div class="card">
+          <h3>UE Rx Side</h3>
+          <div class="row"><label>UE noise figure</label><input type="number" id="ueNF" step="0.1"><span class="unit">dB</span></div>
+          <div class="row"><label>Channel bandwidth</label><input type="number" id="bw" step="0.1"><span class="unit">MHz</span></div>
+          <div class="row"><label>Required SNR (target service)</label><input type="number" id="reqSNR" step="0.1"><span class="unit">dB</span></div>
+          <div class="row"><label>UE antenna gain</label><input type="number" id="ueAntGain" step="0.1"><span class="unit">dBi</span></div>
+        </div>
+
+        <div class="card">
+          <h3>Uplink Side (UE → gNB)</h3>
+          <div class="row"><label>UE Tx power</label><input type="number" id="ueTx" step="0.1"><span class="unit">dBm</span></div>
+          <div class="row"><label>gNB noise figure</label><input type="number" id="bsNF" step="0.1"><span class="unit">dB</span></div>
+          <div class="row"><label>gNB Rx antenna gain</label><input type="number" id="bsRxGain" step="0.1"><span class="unit">dBi</span></div>
+          <div class="row"><label>Body loss (UL)</label><input type="number" id="bodyLoss" step="0.1"><span class="unit">dB</span></div>
+        </div>
+
+        <div class="card">
+          <h3>Margins</h3>
+          <div class="row"><label>Shadow fading margin</label><input type="number" id="shadow" step="0.1"><span class="unit">dB</span></div>
+          <div class="row"><label>Interference margin</label><input type="number" id="interf" step="0.1"><span class="unit">dB</span></div>
+          <div class="row"><label>Indoor penetration</label><input type="number" id="indoor" step="0.1"><span class="unit">dB</span></div>
+          <div class="row"><label>Rain margin (FR2 only)</label><input type="number" id="rain" step="0.1"><span class="unit">dB</span></div>
+          <div class="tip">Light indoor 10–15 dB · Deep indoor (concrete) 20–25 dB · Low-E glass 25–35 dB</div>
+        </div>
+
+        <div class="card">
+          <h3>Propagation & Geometry</h3>
+          <div class="row" style="grid-template-columns:1fr 140px 50px;">
+            <label>Propagation model</label>
+            <select id="model">
+              <option value="okumura-urban">Okumura-Hata (Urban)</option>
+              <option value="okumura-suburban">Okumura-Hata (Suburban)</option>
+              <option value="okumura-rural">Okumura-Hata (Rural/Open)</option>
+              <option value="cost231-urban">COST-231 Hata (Urban)</option>
+              <option value="cost231-metro">COST-231 Hata (Metro)</option>
+              <option value="uma-nlos">3GPP UMa NLOS</option>
+              <option value="rma-nlos">3GPP RMa NLOS</option>
+            </select>
+            <span></span>
+          </div>
+          <div class="row"><label>Carrier frequency</label><input type="number" id="freq" step="1"><span class="unit">MHz</span></div>
+          <div class="row"><label>BS antenna height</label><input type="number" id="hb" step="1"><span class="unit">m</span></div>
+          <div class="row"><label>MS / UE height</label><input type="number" id="hm" step="0.1"><span class="unit">m</span></div>
+        </div>
+
+        <div class="card">
+          <h3>Coverage Area & Capacity</h3>
+          <div class="row"><label>Target coverage area</label><input type="number" id="area" step="0.1"><span class="unit">km²</span></div>
+          <div class="row"><label>Per-cell DL throughput (loaded)</label><input type="number" id="cellThr" step="1"><span class="unit">Mbps</span></div>
+          <div class="row"><label>Subscriber count</label><input type="number" id="subs" step="100"><span class="unit"></span></div>
+          <div class="row"><label>Busy-hour load per sub</label><input type="number" id="loadPerSub" step="0.01"><span class="unit">Mbps</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Downlink Link Budget</h3>
+          <div class="result-line"><span class="lbl">EIRP</span><span class="val" id="r_eirp">— dBm</span></div>
+          <div class="result-line"><span class="lbl">Thermal noise floor</span><span class="val" id="r_noise">— dBm</span></div>
+          <div class="result-line"><span class="lbl">UE receiver noise</span><span class="val" id="r_rxnoise">— dBm</span></div>
+          <div class="result-line"><span class="lbl">UE Rx sensitivity</span><span class="val" id="r_rxsens">— dBm</span></div>
+          <div class="result-line"><span class="lbl">Total margins (DL)</span><span class="val" id="r_dlmargin">— dB</span></div>
+          <div class="headline">
+            <div class="h-label">Downlink MAPL <span class="bind-tag" id="dl_tag">—</span></div>
+            <div class="h-value" id="r_dlmapl">—</div>
+            <div class="h-detail">Path loss budget available DL</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Uplink Link Budget</h3>
+          <div class="result-line"><span class="lbl">UE EIRP</span><span class="val" id="r_ueeirp">— dBm</span></div>
+          <div class="result-line"><span class="lbl">gNB receiver noise</span><span class="val" id="r_bsnoise">— dBm</span></div>
+          <div class="result-line"><span class="lbl">gNB Rx sensitivity</span><span class="val" id="r_bssens">— dBm</span></div>
+          <div class="result-line"><span class="lbl">Total margins (UL)</span><span class="val" id="r_ulmargin">— dB</span></div>
+          <div class="headline">
+            <div class="h-label">Uplink MAPL <span class="bind-tag" id="ul_tag">—</span></div>
+            <div class="h-value" id="r_ulmapl">—</div>
+            <div class="h-detail">Usually the binding direction at cell edge</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Cell Radius (binding MAPL)</h3>
+          <div class="result-line"><span class="lbl">Binding MAPL</span><span class="val" id="r_bindmapl">— dB</span></div>
+          <div class="result-line"><span class="lbl">Model</span><span class="val" id="r_modelname">—</span></div>
+          <div class="headline">
+            <div class="h-label">Cell radius R</div>
+            <div class="h-value" id="r_radius">—</div>
+            <div class="h-detail" id="r_radius_detail">3-sector site, hexagonal coverage</div>
+          </div>
+          <div class="result-line"><span class="lbl">Site coverage area (2.6 · R²)</span><span class="val" id="r_sitearea">— km²</span></div>
+        </div>
+
+        <div class="card">
+          <h3>Site Count Dimensioning</h3>
+          <div class="result-line"><span class="lbl">Coverage-driven site count</span><span class="val" id="r_ncov">—</span></div>
+          <div class="result-line"><span class="lbl">Total offered load</span><span class="val" id="r_offered">— Mbps</span></div>
+          <div class="result-line"><span class="lbl">Per-site throughput (3 sect)</span><span class="val" id="r_persite">— Mbps</span></div>
+          <div class="result-line"><span class="lbl">Capacity-driven site count</span><span class="val" id="r_ncap">—</span></div>
+          <div class="headline">
+            <div class="h-label">Required Sites = max(coverage, capacity)</div>
+            <div class="h-value" id="r_nsites">—</div>
+            <div class="h-detail" id="r_driver">—</div>
+          </div>
+          <div class="tip">Add 10–20% buffer for overlap, traffic growth, and unservable terrain. For urban capacity-driven projects, plan small-cell offload or carrier addition before adding macros.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-kpi">
+    <div class="filter-bar">
+      <input type="text" id="kpiSearch" placeholder="Search symptoms (e.g. 'HO failure', 'PRACH', 'low throughput')">
+      <select id="kpiCat">
+        <option value="">All categories</option>
+        <option value="access">Accessibility</option>
+        <option value="retain">Retainability</option>
+        <option value="mobil">Mobility</option>
+        <option value="thru">Throughput / Integrity</option>
+        <option value="util">Utilization / Capacity</option>
+        <option value="hw">Hardware / External</option>
+      </select>
+    </div>
+
+    <div class="section-title">Diagnostic Cards — Symptom → Likely Causes → First Checks</div>
+    <div id="kpiList"></div>
+
+    <div class="section-title">KPI Targets — Quick Reference</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="target-table" id="kpiTargets"></table>
+    </div>
+
+    <div class="section-title">Handover Failure Root-Cause Classification</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="target-table" id="hoFailTable"></table>
+    </div>
+
+    <div class="section-title">Drive Test — What To Look At, In Order</div>
+    <div class="card">
+      <ol style="margin:0; padding-left:20px; line-height:1.7;">
+        <li><strong>Serving cell (best-server) map</strong> — fragmented footprints? Overlaps?</li>
+        <li><strong>RSRP map</strong> — coverage holes (&lt;-110 dBm) and overshoot.</li>
+        <li><strong>SINR map</strong> — interference and pilot pollution (&lt;0 dB outside cell edge = problem).</li>
+        <li><strong>PCI / mod-3 map</strong> — PCI confusion in overlap regions kills CRS quality.</li>
+        <li><strong>Throughput map</strong> — does it match RSRP/SINR? If not, look at scheduling or transport.</li>
+        <li><strong>Handover events</strong> — cluster of failures by source–target PCI pair.</li>
+        <li><strong>Re-establishments / drops</strong> — edge = coverage; mid-cell = UL fail / interferer.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-vendor">
+    <div class="filter-bar">
+      <input type="text" id="vendorSearch" placeholder="Search features, MML/CLI commands, or platforms…">
+      <select id="vendorCat">
+        <option value="">All categories</option>
+        <option value="LTE feature">LTE features</option>
+        <option value="5G feature">5G NR features</option>
+        <option value="SON / Automation">SON / Automation</option>
+        <option value="Energy">Energy saving</option>
+        <option value="Platform">Platforms / hardware</option>
+        <option value="OSS">OSS / management</option>
+        <option value="Command">MML / CLI commands</option>
+      </select>
+    </div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="vendor-table" id="vendorTable">
+        <thead><tr>
+          <th>Generic concept</th>
+          <th>Huawei</th>
+          <th>Ericsson</th>
+          <th>Nokia / NSN</th>
+          <th>ZTE</th>
+          <th>Samsung</th>
+          <th>Category</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="legend-note">Verify against the operator's specific software release — vendors rename features and change MML syntax between major releases.</div>
+  </div>
+
+  <div class="panel" id="panel-ref">
+    <div class="section-title">Thermal Noise Floor — Memorize These</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="target-table">
+        <thead><tr><th>Bandwidth</th><th>Noise floor (kT·B)</th><th>Common usage</th></tr></thead>
+        <tbody>
+          <tr><td>200 kHz</td><td class="mono">-121 dBm</td><td>GSM channel</td></tr>
+          <tr><td>180 kHz</td><td class="mono">-121 dBm</td><td>1 PRB LTE / NR 15 kHz SCS</td></tr>
+          <tr><td>360 kHz</td><td class="mono">-118 dBm</td><td>1 PRB NR 30 kHz SCS</td></tr>
+          <tr><td>5 MHz</td><td class="mono">-107 dBm</td><td>LTE / UMTS</td></tr>
+          <tr><td>10 MHz</td><td class="mono">-104 dBm</td><td>LTE</td></tr>
+          <tr><td>20 MHz</td><td class="mono">-101 dBm</td><td>LTE / NR</td></tr>
+          <tr><td>40 MHz</td><td class="mono">-98 dBm</td><td>NR</td></tr>
+          <tr><td>100 MHz</td><td class="mono">-94 dBm</td><td>NR n78 / C-band</td></tr>
+          <tr><td>400 MHz</td><td class="mono">-88 dBm</td><td>NR FR2 (mmWave)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Cell-Radius Mental Shortcuts (urban NLOS, BS @ 30 m)</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="target-table">
+        <thead><tr><th>Band</th><th>MAPL 130 dB</th><th>MAPL 140 dB</th><th>MAPL 150 dB</th></tr></thead>
+        <tbody>
+          <tr><td>700 MHz (n28 / B28)</td><td class="ok">~1.2 km</td><td class="ok">~2.5 km</td><td class="ok">~5.0 km</td></tr>
+          <tr><td>800 MHz (B20)</td><td class="ok">~1.1 km</td><td class="ok">~2.3 km</td><td>~4.5 km</td></tr>
+          <tr><td>900 MHz (B8)</td><td>~1.0 km</td><td>~2.0 km</td><td>~4.0 km</td></tr>
+          <tr><td>1800 MHz (B3)</td><td>~0.6 km</td><td>~1.2 km</td><td>~2.5 km</td></tr>
+          <tr><td>2300 MHz TDD (B40)</td><td>~0.5 km</td><td>~1.0 km</td><td>~2.0 km</td></tr>
+          <tr><td>2600 MHz (B7)</td><td>~0.45 km</td><td>~0.9 km</td><td>~1.8 km</td></tr>
+          <tr><td>3500 MHz (n78)</td><td class="warn">~0.4 km</td><td class="warn">~0.8 km</td><td>~1.6 km</td></tr>
+        </tbody>
+      </table>
+      <div style="padding:8px 14px; font-size:12px; color:#666;">Rule of thumb: doubling frequency cuts NLOS reach by ~40%.</div>
+    </div>
+
+    <div class="section-title">Antenna Selection</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="target-table">
+        <thead><tr><th>Scenario</th><th>H-HPBW</th><th>V-HPBW</th><th>Typical tilt</th></tr></thead>
+        <tbody>
+          <tr><td>Standard 3-sector macro</td><td>65°</td><td>6–9°</td><td>4–8° urban</td></tr>
+          <tr><td>Dense urban / small-cell-like</td><td>90°</td><td>10–14°</td><td>fixed / RET</td></tr>
+          <tr><td>Highway / coverage</td><td>33–45°</td><td>6°</td><td>1–3°</td></tr>
+          <tr><td>Rural omni</td><td>360°</td><td>7°</td><td>1–4° mech</td></tr>
+          <tr><td>C-band mMIMO (5G)</td><td>65° steerable ±60°</td><td>~6° steerable ±30°</td><td>per beam config</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Required SNR by Service</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="target-table">
+        <thead><tr><th>Service</th><th>Required SNR</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>VoLTE QCI1 (AMR 12.65, TTI bundling)</td><td class="mono">~ -7 dB</td><td>edge-of-cell voice target</td></tr>
+          <tr><td>64 kbps data</td><td class="mono">~ -5 dB</td><td>basic IoT / control</td></tr>
+          <tr><td>1 Mbps DL</td><td class="mono">~ -3 dB</td><td>typical edge data target</td></tr>
+          <tr><td>10 Mbps DL</td><td class="mono">~ +5 dB</td><td>good consumer experience</td></tr>
+          <tr><td>5G eMBB cell-edge</td><td class="mono">≥ 0 dB</td><td>NR mid-band target</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Per-Cell Throughput Reference (Loaded)</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="target-table">
+        <thead><tr><th>Configuration</th><th>Avg DL cell throughput</th><th>Avg UL</th></tr></thead>
+        <tbody>
+          <tr><td>LTE 10 MHz, 2x2 MIMO, mixed UEs</td><td>~25 Mbps</td><td>~8 Mbps</td></tr>
+          <tr><td>LTE 20 MHz, 2x2 MIMO</td><td>~50 Mbps</td><td>~15 Mbps</td></tr>
+          <tr><td>LTE 20 MHz, 4x4 MIMO + 256QAM</td><td>~100 Mbps</td><td>~25 Mbps</td></tr>
+          <tr><td>LTE 20 MHz TDD (B40, DSUUD)</td><td>~60–70 Mbps</td><td>~10 Mbps</td></tr>
+          <tr><td>NR n78 100 MHz, 64T64R, busy hour</td><td>600–900 Mbps</td><td>80–150 Mbps</td></tr>
+          <tr><td>NR n78 100 MHz, dense MU-MIMO</td><td>1.0–1.5 Gbps</td><td>100–180 Mbps</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Key Formulas</div>
+    <details>
+      <summary>Link budget structure (downlink)</summary>
+      <div>
+        <div class="formula">EIRP = Tx Power + Combining Gain + Antenna Gain − Feeder Loss
+Thermal Noise (dBm) = −174 + 10·log10(BW in Hz)
+Rx Sensitivity = Thermal Noise + NF + Required SNR
+MAPL_DL = EIRP − Rx Sensitivity − (Shadow + Interference + Indoor + Body)</div>
+      </div>
+    </details>
+    <details>
+      <summary>Okumura-Hata (urban, 150–1500 MHz)</summary>
+      <div>
+        <div class="formula">L = 69.55 + 26.16·log10(f) − 13.82·log10(hb) − a(hm)
+    + (44.9 − 6.55·log10(hb)) · log10(d)
+
+a(hm) = (1.1·log10(f) − 0.7)·hm − (1.56·log10(f) − 0.8)
+
+f in MHz, hb / hm in m, d in km</div>
+      </div>
+    </details>
+    <details>
+      <summary>COST-231 Hata (1500–2000 MHz)</summary>
+      <div>
+        <div class="formula">L = 46.3 + 33.9·log10(f) − 13.82·log10(hb) − a(hm)
+    + (44.9 − 6.55·log10(hb)) · log10(d) + Cm
+
+Cm = 0 dB medium city / 3 dB metropolitan</div>
+      </div>
+    </details>
+    <details>
+      <summary>3GPP UMa NLOS (TR 38.901, sub-6 GHz)</summary>
+      <div>
+        <div class="formula">PL_UMa_NLOS = 13.54 + 39.08·log10(d_3D)
+            + 20·log10(fc_GHz) − 0.6·(h_UT − 1.5)</div>
+        Use this for 5G mid-band planning instead of Hata.
+      </div>
+    </details>
+    <details>
+      <summary>Cell area & site count</summary>
+      <div>
+        <div class="formula">Site_area = (3√3 / 2) · R²  ≈  2.6 · R²   (3-sector hex)
+N_sites_coverage = Target_area / Site_area
+N_sites_capacity = Offered_load / Per_site_throughput
+N_sites = max(N_coverage, N_capacity)</div>
+      </div>
+    </details>
+    <details>
+      <summary>Antenna tilt</summary>
+      <div>
+        <div class="formula">Tilt_total = arctan((h_BS − h_target) / d) + (HPBW_v / 2)</div>
+        First term aims the beam center at target; second puts target at −3 dB edge.
+      </div>
+    </details>
+    <details>
+      <summary>Erlang B — TCH dimensioning</summary>
+      <div>
+        <div class="formula">B(A, N) = (A^N / N!) / Σ(k=0..N) (A^k / k!)
+
+Solve iteratively for offered load A given target blocking B.</div>
+        <table class="target-table">
+          <thead><tr><th>N (TCH timeslots)</th><th>Erlangs @ 2% blocking</th></tr></thead>
+          <tbody>
+            <tr><td>7</td><td>2.9</td></tr>
+            <tr><td>14</td><td>8.2</td></tr>
+            <tr><td>22</td><td>14.9</td></tr>
+            <tr><td>30</td><td>21.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <div class="footer-note">
+    RF Planning Toolkit · Calculations are first-order planning estimates. Always validate with vendor link-budget tools and drive-test data before sign-off.
+  </div>
+</div>
+
+<script>
+"use strict";
+
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("panel-" + t.dataset.tab).classList.add("active");
+  });
+});
+
+const presets = {
+  "LTE 1800 (B3)": {
+    txPwr: 43, combGain: 3, antGain: 17, feedLoss: 0.5,
+    ueNF: 9, bw: 20, reqSNR: -3, ueAntGain: 0,
+    ueTx: 23, bsNF: 3, bsRxGain: 17, bodyLoss: 3,
+    shadow: 8, interf: 3, indoor: 15, rain: 0,
+    freq: 1800, hb: 30, hm: 1.5, model: "cost231-urban",
+    area: 25, cellThr: 50, subs: 50000, loadPerSub: 0.3
+  },
+  "LTE 2600 (B7)": {
+    txPwr: 43, combGain: 3, antGain: 17, feedLoss: 0.5,
+    ueNF: 9, bw: 20, reqSNR: -3, ueAntGain: 0,
+    ueTx: 23, bsNF: 3, bsRxGain: 17, bodyLoss: 3,
+    shadow: 8, interf: 3, indoor: 18, rain: 0,
+    freq: 2600, hb: 30, hm: 1.5, model: "cost231-urban",
+    area: 25, cellThr: 50, subs: 50000, loadPerSub: 0.3
+  },
+  "LTE 800 (B20)": {
+    txPwr: 43, combGain: 3, antGain: 15, feedLoss: 0.5,
+    ueNF: 9, bw: 10, reqSNR: -3, ueAntGain: 0,
+    ueTx: 23, bsNF: 3, bsRxGain: 15, bodyLoss: 3,
+    shadow: 8, interf: 3, indoor: 12, rain: 0,
+    freq: 800, hb: 30, hm: 1.5, model: "okumura-suburban",
+    area: 50, cellThr: 25, subs: 30000, loadPerSub: 0.3
+  },
+  "LTE 900 (B8)": {
+    txPwr: 43, combGain: 3, antGain: 15, feedLoss: 0.5,
+    ueNF: 9, bw: 10, reqSNR: -3, ueAntGain: 0,
+    ueTx: 23, bsNF: 3, bsRxGain: 15, bodyLoss: 3,
+    shadow: 8, interf: 3, indoor: 12, rain: 0,
+    freq: 900, hb: 30, hm: 1.5, model: "okumura-urban",
+    area: 40, cellThr: 25, subs: 30000, loadPerSub: 0.3
+  },
+  "LTE 2300 TDD (B40)": {
+    txPwr: 46, combGain: 3, antGain: 17, feedLoss: 0.5,
+    ueNF: 9, bw: 20, reqSNR: -3, ueAntGain: 0,
+    ueTx: 23, bsNF: 3, bsRxGain: 17, bodyLoss: 3,
+    shadow: 8, interf: 4, indoor: 18, rain: 0,
+    freq: 2300, hb: 30, hm: 1.5, model: "cost231-urban",
+    area: 25, cellThr: 60, subs: 50000, loadPerSub: 0.3
+  },
+  "5G n78 100 MHz mMIMO": {
+    txPwr: 53, combGain: 0, antGain: 24, feedLoss: 0.5,
+    ueNF: 9, bw: 100, reqSNR: 0, ueAntGain: 0,
+    ueTx: 26, bsNF: 3, bsRxGain: 24, bodyLoss: 3,
+    shadow: 8, interf: 5, indoor: 20, rain: 0,
+    freq: 3500, hb: 30, hm: 1.5, model: "uma-nlos",
+    area: 25, cellThr: 800, subs: 50000, loadPerSub: 1.0
+  },
+  "5G n28 700 MHz DSS": {
+    txPwr: 46, combGain: 3, antGain: 15, feedLoss: 0.5,
+    ueNF: 9, bw: 10, reqSNR: -3, ueAntGain: 0,
+    ueTx: 23, bsNF: 3, bsRxGain: 15, bodyLoss: 3,
+    shadow: 8, interf: 3, indoor: 12, rain: 0,
+    freq: 700, hb: 30, hm: 1.5, model: "okumura-suburban",
+    area: 100, cellThr: 30, subs: 30000, loadPerSub: 0.4
+  },
+  "GSM 900 voice": {
+    txPwr: 43, combGain: 0, antGain: 17, feedLoss: 2,
+    ueNF: 9, bw: 0.2, reqSNR: 9, ueAntGain: 0,
+    ueTx: 33, bsNF: 3, bsRxGain: 17, bodyLoss: 3,
+    shadow: 8, interf: 2, indoor: 12, rain: 0,
+    freq: 900, hb: 30, hm: 1.5, model: "okumura-urban",
+    area: 50, cellThr: 0.5, subs: 20000, loadPerSub: 0.025
+  },
+  "Rural 700 LTE": {
+    txPwr: 46, combGain: 3, antGain: 17, feedLoss: 0.5,
+    ueNF: 9, bw: 10, reqSNR: -5, ueAntGain: 0,
+    ueTx: 23, bsNF: 3, bsRxGain: 17, bodyLoss: 3,
+    shadow: 10, interf: 2, indoor: 0, rain: 0,
+    freq: 700, hb: 45, hm: 1.5, model: "rma-nlos",
+    area: 1000, cellThr: 30, subs: 10000, loadPerSub: 0.2
+  },
+  "5G n258 mmWave 26 GHz": {
+    txPwr: 35, combGain: 0, antGain: 30, feedLoss: 0,
+    ueNF: 11, bw: 400, reqSNR: 0, ueAntGain: 8,
+    ueTx: 23, bsNF: 5, bsRxGain: 30, bodyLoss: 4,
+    shadow: 6, interf: 3, indoor: 30, rain: 3,
+    freq: 26000, hb: 15, hm: 1.5, model: "uma-nlos",
+    area: 1, cellThr: 3000, subs: 5000, loadPerSub: 5
+  }
+};
+
+const presetEl = document.getElementById("presets");
+Object.keys(presets).forEach(name => {
+  const b = document.createElement("button");
+  b.className = "preset-btn";
+  b.textContent = name;
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".preset-btn").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    applyPreset(presets[name]);
+  });
+  presetEl.appendChild(b);
+});
+
+function applyPreset(p) {
+  Object.keys(p).forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.value = p[k];
+  });
+  recalc();
+}
+
+const inputs = ["txPwr","combGain","antGain","feedLoss","ueNF","bw","reqSNR","ueAntGain",
+  "ueTx","bsNF","bsRxGain","bodyLoss","shadow","interf","indoor","rain",
+  "freq","hb","hm","model","area","cellThr","subs","loadPerSub"];
+inputs.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("input", recalc);
+  if (el) el.addEventListener("change", recalc);
+});
+
+function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
+function s(id){ return document.getElementById(id).value; }
+function fmt(v, unit, dp=1){
+  if (!isFinite(v)) return "—";
+  return v.toFixed(dp) + " " + unit;
+}
+
+function thermalNoise(bw_MHz){
+  return -174 + 10 * Math.log10(bw_MHz * 1e6);
+}
+
+function distanceFromMAPL(mapl, model, f_MHz, hb, hm){
+  if (model.startsWith("okumura")) {
+    const a_hm = (1.1*Math.log10(f_MHz) - 0.7)*hm - (1.56*Math.log10(f_MHz) - 0.8);
+    let corr = 0;
+    if (model === "okumura-suburban") corr = -2 * Math.pow(Math.log10(f_MHz/28), 2) - 5.4;
+    if (model === "okumura-rural")    corr = -4.78 * Math.pow(Math.log10(f_MHz),2) + 18.33*Math.log10(f_MHz) - 40.94;
+    const base = 69.55 + 26.16*Math.log10(f_MHz) - 13.82*Math.log10(hb) - a_hm + corr;
+    const slope = 44.9 - 6.55*Math.log10(hb);
+    const log_d = (mapl - base) / slope;
+    return Math.pow(10, log_d);
+  }
+  if (model.startsWith("cost231")) {
+    const a_hm = (1.1*Math.log10(f_MHz) - 0.7)*hm - (1.56*Math.log10(f_MHz) - 0.8);
+    const Cm = (model === "cost231-metro") ? 3 : 0;
+    const base = 46.3 + 33.9*Math.log10(f_MHz) - 13.82*Math.log10(hb) - a_hm + Cm;
+    const slope = 44.9 - 6.55*Math.log10(hb);
+    const log_d = (mapl - base) / slope;
+    return Math.pow(10, log_d);
+  }
+  if (model === "uma-nlos") {
+    const fc_GHz = f_MHz / 1000;
+    const part = mapl - 13.54 - 20*Math.log10(fc_GHz) + 0.6*(hm - 1.5);
+    const log_d_m = part / 39.08;
+    const d_m = Math.pow(10, log_d_m);
+    return d_m / 1000;
+  }
+  if (model === "rma-nlos") {
+    const fc_GHz = f_MHz / 1000;
+    const h = 5, W = 20;
+    const term1 = 161.04 - 7.1*Math.log10(W) + 7.5*Math.log10(h);
+    const term2 = -(24.37 - 3.7*Math.pow(h/hb, 2))*Math.log10(hb);
+    const slope = 43.42 - 3.1*Math.log10(hb);
+    const term3 = 20*Math.log10(fc_GHz);
+    const term4 = -(3.2*Math.pow(Math.log10(11.75*hm), 2) - 4.97);
+    const log_d_m = (mapl - term1 - term2 - term3 - term4)/slope + 3;
+    return Math.pow(10, log_d_m) / 1000;
+  }
+  return NaN;
+}
+
+const modelLabels = {
+  "okumura-urban": "Okumura-Hata Urban",
+  "okumura-suburban": "Okumura-Hata Suburban",
+  "okumura-rural": "Okumura-Hata Rural/Open",
+  "cost231-urban": "COST-231 Hata Urban",
+  "cost231-metro": "COST-231 Hata Metro",
+  "uma-nlos": "3GPP UMa NLOS",
+  "rma-nlos": "3GPP RMa NLOS"
+};
+
+function recalc(){
+  const eirp = n("txPwr") + n("combGain") + n("antGain") - n("feedLoss");
+  const thn = thermalNoise(n("bw"));
+  const rxNoise = thn + n("ueNF");
+  const rxSens = rxNoise + n("reqSNR");
+  const dlMargin = n("shadow") + n("interf") + n("indoor") + n("rain");
+  const dlMAPL = eirp - rxSens - dlMargin + n("ueAntGain");
+
+  document.getElementById("r_eirp").textContent = fmt(eirp, "dBm");
+  document.getElementById("r_noise").textContent = fmt(thn, "dBm");
+  document.getElementById("r_rxnoise").textContent = fmt(rxNoise, "dBm");
+  document.getElementById("r_rxsens").textContent = fmt(rxSens, "dBm");
+  document.getElementById("r_dlmargin").textContent = fmt(dlMargin, "dB");
+  document.getElementById("r_dlmapl").textContent = fmt(dlMAPL, "dB");
+
+  const ueEirp = n("ueTx") + n("ueAntGain") - n("bodyLoss");
+  const bsRxNoise = thn + n("bsNF");
+  const bsSens = bsRxNoise + n("reqSNR");
+  const ulMargin = n("shadow") + n("interf") + n("indoor") + n("rain");
+  const ulMAPL = ueEirp - bsSens - ulMargin + n("bsRxGain");
+
+  document.getElementById("r_ueeirp").textContent = fmt(ueEirp, "dBm");
+  document.getElementById("r_bsnoise").textContent = fmt(bsRxNoise, "dBm");
+  document.getElementById("r_bssens").textContent = fmt(bsSens, "dBm");
+  document.getElementById("r_ulmargin").textContent = fmt(ulMargin, "dB");
+  document.getElementById("r_ulmapl").textContent = fmt(ulMAPL, "dB");
+
+  const binding = Math.min(dlMAPL, ulMAPL);
+  const dlBind = (dlMAPL <= ulMAPL);
+  document.getElementById("dl_tag").textContent = dlBind ? "binding" : "ok";
+  document.getElementById("dl_tag").className = "bind-tag " + (dlBind ? "binding" : "ok");
+  document.getElementById("ul_tag").textContent = dlBind ? "ok" : "binding";
+  document.getElementById("ul_tag").className = "bind-tag " + (dlBind ? "ok" : "binding");
+
+  const model = s("model");
+  const f = n("freq"), hb = n("hb"), hm = n("hm");
+  const R = distanceFromMAPL(binding, model, f, hb, hm);
+  document.getElementById("r_bindmapl").textContent = fmt(binding, "dB");
+  document.getElementById("r_modelname").textContent = modelLabels[model] || model;
+  let radiusText = "—";
+  if (R > 0 && isFinite(R)) {
+    if (R < 1) radiusText = (R*1000).toFixed(0) + " m";
+    else radiusText = R.toFixed(2) + " km";
+  }
+  document.getElementById("r_radius").textContent = radiusText;
+  document.getElementById("r_radius_detail").textContent =
+    `Binding MAPL = ${binding.toFixed(1)} dB · ${modelLabels[model]} · BS height ${hb} m`;
+
+  const siteArea = (isFinite(R) && R>0) ? 2.6 * R * R : NaN;
+  document.getElementById("r_sitearea").textContent = fmt(siteArea, "km²", 3);
+
+  const area = n("area");
+  const nCov = (siteArea>0) ? Math.ceil(area / siteArea) : NaN;
+  document.getElementById("r_ncov").textContent = isFinite(nCov) ? nCov + " sites" : "—";
+
+  const offered = n("subs") * n("loadPerSub");
+  const perSite = n("cellThr") * 3;
+  const nCap = (perSite>0) ? Math.ceil(offered / perSite) : NaN;
+  document.getElementById("r_offered").textContent = fmt(offered, "Mbps", 0);
+  document.getElementById("r_persite").textContent = fmt(perSite, "Mbps", 0);
+  document.getElementById("r_ncap").textContent = isFinite(nCap) ? nCap + " sites" : "—";
+
+  const nFinal = Math.max(nCov||0, nCap||0);
+  document.getElementById("r_nsites").textContent = nFinal ? nFinal + " sites" : "—";
+  document.getElementById("r_driver").textContent =
+    (nCov >= nCap) ? "Coverage-driven — link budget is the constraint" :
+                     "Capacity-driven — traffic load is the constraint";
+}
+
+const kpiCards = [
+  { cat: "access", catLabel: "Accessibility", sym: "RRC Setup Success Rate dropping",
+    causes: ["UL coverage poor at edge → PRACH failures","PRACH preamble pool exhausted or root sequence collision","Admission control rejecting (DRB context full)","Baseband CPU overloaded","X2 / Xn / S1 transport degraded"],
+    checks: ["RTWP / UL noise — sudden rise = external interferer or PIM","PRACH config: format vs cell size, root seq index, contention","Active UE count vs license cap","Recent SW or parameter change","S1AP / NGAP setup failure causes (NAS reject)"]
+  },
+  { cat: "access", catLabel: "Accessibility", sym: "EN-DC (5G NSA) addition failure",
+    causes: ["LTE anchor RSRP too weak at SCG add location","B1 threshold misconfigured","X2 between eNB and gNB unhealthy","SSB beam alignment poor at NSA cell edge","UE category mismatch"],
+    checks: ["B1 threshold value — should match real RSRP coverage at NSA edge","X2 link KPIs (setup, failure, latency)","SCG addition cause codes per UE","Anchor-cell RSRP distribution at addition attempts"]
+  },
+  { cat: "retain", catLabel: "Retainability", sym: "High E-RAB drop rate, one cell",
+    causes: ["Coverage hole — T310 expiry (UE goes out-of-sync)","UL failure even when DL OK (UL link budget too tight)","Recent tilt / power change worsened coverage","Hardware: VSWR fault, RRU degraded, antenna problem","Pilot pollution → interference-driven drops"],
+    checks: ["VSWR per port, RRU alarms","Pre/post comparison if any parameter change","RSRP distribution per UE in drive test","HO failure cascade — drops often follow HO fails","T310 / T311 values, n310/n311 counters"]
+  },
+  { cat: "retain", catLabel: "Retainability", sym: "VoLTE QCI1 drops at cell edge",
+    causes: ["TTI bundling not enabled","UL coverage inadequate (PUSCH out of headroom)","SRVCC trigger threshold mis-tuned","AMR mode adaptation issue","Interference on QCI1 PRBs"],
+    checks: ["TTI bundling toggle on edge UEs","UL power headroom distribution","SRVCC threshold (a2 RSRP) — does it leave VoLTE drops before HO?","Codec rate selection (AMR-NB vs WB)","MOS / POLQA per location"]
+  },
+  { cat: "mobil", catLabel: "Mobility", sym: "Intra-LTE HO failures between specific pair",
+    causes: ["Missing or wrong neighbor relation","PCI confusion (two neighbors share PCI in overlap)","X2 link unhealthy between source-target","Target cell coverage gap at typical HO trigger location","A3 offset / TTT mistuned (too-early or too-late HO)"],
+    checks: ["Neighbor relation matrix — is it bi-directional?","PCI plan around overlap zone","X2 setup/failure KPIs for that pair","HO failure cause distribution (preparation vs execution)","Drive test of the corridor where failures cluster"]
+  },
+  { cat: "mobil", catLabel: "Mobility", sym: "Ping-pong handovers between two cells",
+    causes: ["Overlapping coverage zone — no clear dominant cell","Hysteresis / TTT too aggressive","Both cells boresight pointing at same area","Tilt / azimuth need adjustment"],
+    checks: ["Map the overlap zone via best-server","Increase A3 offset by 1–2 dB and TTT one step","Consider tilt-down the dominant or azimuth tweak","MRO classification — if available, use it"]
+  },
+  { cat: "thru", catLabel: "Throughput", sym: "Low DL throughput despite good RSRP",
+    causes: ["Low SINR — interferer or overshoot","Rank-1-stuck (LOS dominant, no MIMO gain)","MCS distribution low (UE-side mobility, BLER mis-target)","PRB utilization saturated","Transport / S1-U bottleneck"],
+    checks: ["SINR distribution per UE","Rank distribution (rank-2/rank-4 share)","MCS CDF; BLER initial vs residual","PRB DL utilization in busy hour","UL/DL bearer throughput vs PHY throughput — gap = transport"]
+  },
+  { cat: "thru", catLabel: "Throughput", sym: "Cell-edge throughput far below target",
+    causes: ["Interference from overshooting neighbor (mod-3 conflict)","Insufficient antenna gain or tilt for the edge","Required SNR not met for target MCS","Indoor penetration loss higher than planned"],
+    checks: ["Mod-3 / PCI overlap analysis at edge","Tilt audit vs theoretical","Pilot pollution detector (>3 dominant pilots within 3 dB)","Indoor measurement vs assumed penetration loss"]
+  },
+  { cat: "util", catLabel: "Utilization", sym: "PRB utilization > 70% in busy hour",
+    causes: ["Traffic growth outpacing capacity","One heavy UE dominates","Inefficient scheduler tuning","Limited CA / no neighbor carrier"],
+    checks: ["Per-UE PRB share","Carrier aggregation activation rate","Add CA secondary cell, expand carrier, enable MU-MIMO","Long-term: capacity site addition"]
+  },
+  { cat: "util", catLabel: "Utilization", sym: "PDCCH CCE utilization saturated before PRB",
+    causes: ["Too many UEs with low aggregation level demand","Inefficient AL adaptation","High SR / paging load"],
+    checks: ["Active UE count vs vendor PDCCH limit","Enable PDCCH adaptive AL","Look at SR period config","Consider DRX optimization"]
+  },
+  { cat: "hw", catLabel: "Hardware", sym: "Cell suddenly stopped serving",
+    causes: ["Hardware alarm (RRU/AAU fault, BBU board)","License expired or seat over-allocated","Antenna VSWR fault","Fronthaul fiber issue (CPRI / eCPRI)","Site power"],
+    checks: ["Alarm list (most recent)","VSWR per port","CPRI/eCPRI link state","License status","Fronthaul fiber link diagnostics"]
+  },
+  { cat: "hw", catLabel: "External", sym: "UL noise floor (RTWP) climbing area-wide",
+    causes: ["External interferer (illegal repeater, faulty radar, neighbor leak)","PIM from rusty connector or weatherproofing degraded","Faulty LNA in another sector causing self-interference","Time-sync issue (TDD)"],
+    checks: ["RTWP trend per cell — geo cluster?","Drive-by spectrum analyzer / IFR sweep","Connector / weatherproof audit","TDD frame sync, GPS lock status","Coordinate with regulator if illegal emitter suspected"]
+  },
+  { cat: "thru", catLabel: "Throughput", sym: "VoLTE MOS drops without RSRP/SINR change",
+    causes: ["Jitter / delay on transport / IMS path","Codec switch (AMR-WB → AMR-NB)","Core / IMS issue","Echo cancellation issue"],
+    checks: ["RTP jitter and packet loss on bearer","Codec negotiation logs","IMS / P-CSCF health","SBC / MGW audit"]
+  }
+];
+
+function renderKPI(){
+  const search = document.getElementById("kpiSearch").value.toLowerCase();
+  const cat = document.getElementById("kpiCat").value;
+  const list = document.getElementById("kpiList");
+  list.innerHTML = "";
+  let count = 0;
+  kpiCards.forEach(k => {
+    const hay = (k.sym + " " + k.causes.join(" ") + " " + k.checks.join(" ")).toLowerCase();
+    if (search && !hay.includes(search)) return;
+    if (cat && k.cat !== cat) return;
+    count++;
+    const el = document.createElement("div");
+    el.className = "kpi-card";
+    el.innerHTML = `
+      <div>
+        <div class="cat ${k.cat}">${k.catLabel}</div>
+        <div class="sym">${k.sym}</div>
+      </div>
+      <div class="causes">
+        <h5>Likely Causes</h5>
+        <ul>${k.causes.map(c=>"<li>"+c+"</li>").join("")}</ul>
+      </div>
+      <div class="checks">
+        <h5>First Things To Check</h5>
+        <ol>${k.checks.map(c=>"<li>"+c+"</li>").join("")}</ol>
+      </div>`;
+    list.appendChild(el);
+  });
+  if (count === 0) list.innerHTML = '<div class="card" style="text-align:center;color:#999;">No matching symptoms.</div>';
+}
+
+document.getElementById("kpiSearch").addEventListener("input", renderKPI);
+document.getElementById("kpiCat").addEventListener("change", renderKPI);
+
+const kpiTargets = [
+  ["GSM", "CSSR (Call Setup Success Rate)", "≥ 99%"],
+  ["GSM", "SDCCH Block Rate", "≤ 1%"],
+  ["GSM", "Drop Call Rate", "≤ 0.5–1%"],
+  ["GSM", "HOSR (Intra-BSC / Inter-BSC)", "≥ 97%"],
+  ["LTE", "RRC Setup Success Rate", "≥ 99.5%"],
+  ["LTE", "ERAB Setup Success Rate", "≥ 99.5%"],
+  ["LTE", "E-RAB Drop Rate", "≤ 0.5%"],
+  ["LTE", "VoLTE Service Drop (QCI1)", "≤ 0.2%"],
+  ["LTE", "Intra-LTE HO Success", "≥ 98%"],
+  ["LTE", "SRVCC Success", "≥ 95%"],
+  ["LTE", "VoLTE MOS (POLQA)", "≥ 3.5"],
+  ["LTE", "DL Cell-edge Throughput (95%)", "≥ 1 Mbps urban"],
+  ["5G NR", "RRC Setup Success Rate", "≥ 99.5%"],
+  ["5G NR", "PDU Session Setup Success", "≥ 99%"],
+  ["5G NR", "NSA EN-DC Addition Success", "≥ 95%"],
+  ["5G NR", "PDU Session Drop", "≤ 0.5%"],
+  ["5G NR", "NSA SCG Failure", "≤ 1%"],
+  ["5G NR", "Intra-NR HO Success", "≥ 98%"],
+  ["5G NR", "Inter-RAT HO to LTE (EPS Fallback)", "≥ 98%"],
+  ["5G NR", "MU-MIMO Pairing rate (mature)", "≥ 30%"],
+  ["5G NR", "Cell-edge DL Throughput (mid-band)", "≥ 10 Mbps"],
+];
+const kpiTbl = document.getElementById("kpiTargets");
+kpiTbl.innerHTML = "<thead><tr><th>Tech</th><th>KPI</th><th>Target</th></tr></thead><tbody>" +
+  kpiTargets.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="ok">${r[2]}</td></tr>`).join("") +
+  "</tbody>";
+
+const hoTable = [
+  ["Too-late HO", "Serving cell drops fast, neighbor measurement triggered too late", "Reduce A3 offset; reduce TTT; lower T310 (carefully)"],
+  ["Too-early HO", "HO to neighbor immediately fails or returns to source", "Increase A3 offset; increase TTT; check target coverage at trigger point"],
+  ["Wrong cell", "HO to a cell that isn't actually best at that location", "Fix PCI confusion; audit neighbor relation matrix"],
+  ["Missing neighbor", "No HO event triggered; UE drops or re-establishes elsewhere", "Add ANR-detected neighbor; audit neighbor matrix monthly"]
+];
+const hoTbl = document.getElementById("hoFailTable");
+hoTbl.innerHTML = "<thead><tr><th>Classification</th><th>Signature</th><th>Action</th></tr></thead><tbody>" +
+  hoTable.map(r => `<tr><td><strong>${r[0]}</strong></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("") +
+  "</tbody>";
+
+renderKPI();
+
+const vendorData = [
+  { concept: "Dynamic Spectrum Sharing (DSS) FDD LTE↔NR",
+    huawei: "5G CloudAIR / CloudAIR-DSS", ericsson: "Ericsson Spectrum Sharing (ESS)",
+    nokia: "DSS (in 5G AirScale)", zte: "Magic Radio Pro", samsung: "DSS / Dynamic Spectrum Sharing",
+    cat: "5G feature" },
+  { concept: "TDD reciprocity-based DL beamforming",
+    huawei: "Massive MIMO BeamPilot (SRS-based)", ericsson: "Reciprocity-based Beamforming",
+    nokia: "SRS-based reciprocity beamforming", zte: "QCell / Pre5G MM", samsung: "CognitiV mMIMO beamforming",
+    cat: "5G feature" },
+  { concept: "Supplementary Uplink (SUL)",
+    huawei: "SUL — n78 DL + low-band UL", ericsson: "Supplementary Uplink",
+    nokia: "SUL Carrier", zte: "SUL", samsung: "SUL",
+    cat: "5G feature" },
+  { concept: "EN-DC fast addition / B1 tuning",
+    huawei: "EN-DC fast SCG add", ericsson: "EN-DC Optimization package",
+    nokia: "Fast SCG Addition", zte: "EN-DC Quick Setup", samsung: "EN-DC Fast Add",
+    cat: "5G feature" },
+  { concept: "5G Network Slicing (RAN)",
+    huawei: "5G RAN Slicing (NSSAI-aware scheduler)", ericsson: "5G RAN Slicing",
+    nokia: "Network Slicing", zte: "Smart Slicing", samsung: "5G Slicing",
+    cat: "5G feature" },
+  { concept: "EPS Fallback (Voice on SA)",
+    huawei: "EPS Fallback", ericsson: "EPS Fallback",
+    nokia: "EPS Fallback", zte: "EPS Fallback", samsung: "EPS Fallback",
+    cat: "5G feature" },
+  { concept: "Voice on NR (VoNR)",
+    huawei: "VoNR", ericsson: "VoNR",
+    nokia: "VoNR", zte: "VoNR", samsung: "VoNR",
+    cat: "5G feature" },
+  { concept: "Integrated Access & Backhaul (mmWave)",
+    huawei: "5G IAB", ericsson: "IAB",
+    nokia: "IAB", zte: "IAB", samsung: "IAB",
+    cat: "5G feature" },
+  { concept: "GSM/LTE dynamic spectrum sharing (refarming)",
+    huawei: "CloudAIR (GSM/LTE)", ericsson: "Spectrum Sharing (G/L)",
+    nokia: "Liquid Radio / Refarm", zte: "Magic Radio (G/L)", samsung: "Liquid GSM/LTE",
+    cat: "LTE feature" },
+  { concept: "256-QAM DL / UL",
+    huawei: "256QAM DL & UL", ericsson: "256QAM DL/UL",
+    nokia: "256QAM DL/UL", zte: "256QAM", samsung: "256QAM",
+    cat: "LTE feature" },
+  { concept: "Combined / SFN cell (multi-RRU broadcast same PCI)",
+    huawei: "Combined Cell / SFN-Cell / Network Coding", ericsson: "Combined Cell",
+    nokia: "Single Cell over multi-RRH", zte: "QCell SFN", samsung: "SFN Cell",
+    cat: "LTE feature" },
+  { concept: "TM9 / CSI-RS beamforming (LTE TDD)",
+    huawei: "TM9 Beamforming", ericsson: "TM9",
+    nokia: "TM9", zte: "TM9", samsung: "TM9",
+    cat: "LTE feature" },
+  { concept: "VoLTE TTI bundling",
+    huawei: "TTI Bundling (VoLTE)", ericsson: "TTI Bundling",
+    nokia: "TTI Bundling", zte: "TTI Bundling", samsung: "TTI Bundling",
+    cat: "LTE feature" },
+  { concept: "Uplink CoMP",
+    huawei: "UL CoMP (requires BBU pooling)", ericsson: "UL CoMP",
+    nokia: "UL CoMP / Centralized RAN", zte: "UL CoMP", samsung: "UL CoMP",
+    cat: "LTE feature" },
+  { concept: "Automatic Neighbor Relation",
+    huawei: "ANR (SON module)", ericsson: "ANR",
+    nokia: "iSON ANR / Neighbor Suggestion", zte: "SmartSON ANR", samsung: "CognitiV-SON ANR",
+    cat: "SON / Automation" },
+  { concept: "Mobility Robustness Optimization",
+    huawei: "MRO", ericsson: "MRO (Mobility Optimization)",
+    nokia: "iSON MRO", zte: "SmartSON MRO", samsung: "CognitiV-MRO",
+    cat: "SON / Automation" },
+  { concept: "Mobility Load Balancing",
+    huawei: "MLB", ericsson: "MLB",
+    nokia: "iSON MLB", zte: "SmartSON MLB", samsung: "CognitiV-MLB",
+    cat: "SON / Automation" },
+  { concept: "Centralized SON",
+    huawei: "MAE-Optix / SON Manager (U2020)", ericsson: "ENM-based C-SON",
+    nokia: "C-SON via NetAct / MantaRay SON", zte: "NetNumen C-SON", samsung: "CognitiV-SON Centralized",
+    cat: "SON / Automation" },
+  { concept: "AI-driven optimization suite",
+    huawei: "MAE / PowerStar AI", ericsson: "Ericsson AI (CognitiV-marketed)",
+    nokia: "Nokia AVA / MantaRay AI", zte: "Smart Decisions / AI@ZTE", samsung: "CognitiV AI",
+    cat: "SON / Automation" },
+  { concept: "Symbol / channel shutdown (DTX)",
+    huawei: "PowerSave / Symbol Shutdown", ericsson: "Micro Sleep TX",
+    nokia: "Micro DTX / Symbol Shutdown", zte: "PowerPilot Symbol Saving", samsung: "Symbol Shutdown",
+    cat: "Energy" },
+  { concept: "Carrier sleep / deactivation",
+    huawei: "PowerStar Carrier Shutdown", ericsson: "Carrier Sleep",
+    nokia: "Cell / Carrier Shutdown", zte: "PowerPilot Carrier", samsung: "Carrier Sleep",
+    cat: "Energy" },
+  { concept: "MIMO layer adaptation (mMIMO sleep)",
+    huawei: "PowerSave MIMO", ericsson: "MIMO Sleep",
+    nokia: "MIMO Sleep", zte: "PowerPilot MIMO", samsung: "Layer Adaptation",
+    cat: "Energy" },
+  { concept: "Current baseband platform (multi-RAT)",
+    huawei: "BBU5900 / 5900A", ericsson: "Baseband 6630 / 6648",
+    nokia: "AirScale System Module (ABIA/ABIO)", zte: "UniRAN / V9200", samsung: "Compact Macro / vDU",
+    cat: "Platform" },
+  { concept: "Mid-band mMIMO AAU (n78 / B41)",
+    huawei: "AAU5613 / 5639 / 5649 / 5940 (32T/64T)", ericsson: "AIR 3268 / 3258 / 6419 / 6449",
+    nokia: "AEUB / AEUC / AEUD (AirScale AAS)", zte: "A9611 / A9613 / A9617", samsung: "MM3243 / MM3265 (32T/64T)",
+    cat: "Platform" },
+  { concept: "Cloud / O-RAN compute",
+    huawei: "CloudRAN", ericsson: "RAN Compute 6651/6652 / Cloud RAN",
+    nokia: "AirScale Cloud BTS / AirFrame", zte: "vRAN", samsung: "vRAN (CognitiV / SAIVE)",
+    cat: "Platform" },
+  { concept: "Element / Network Management System",
+    huawei: "MAE (formerly U2020/U2000)", ericsson: "ENM (Ericsson Network Manager) / legacy OSS-RC",
+    nokia: "NetAct / MantaRay NM", zte: "NetNumen U31/N31", samsung: "CognitiV / xEMS",
+    cat: "OSS" },
+  { concept: "Bulk configuration tool",
+    huawei: "CME (Configuration Management Express)", ericsson: "ECM / NetIQ-CM",
+    nokia: "NetAct Configurator (RAML)", zte: "NetNumen Configurator", samsung: "xEMS CM",
+    cat: "OSS" },
+  { concept: "List cell config",
+    huawei: "LST CELL", ericsson: "lt all; get EUtranCellFDD",
+    nokia: "show LNCEL (NetAct/LMP)", zte: "show cell", samsung: "show cell-config",
+    cat: "Command" },
+  { concept: "Display UL noise floor (RTWP)",
+    huawei: "DSP RTWP", ericsson: "pmom pmRadioRecInterferencePwr / pmRtwp",
+    nokia: "RTWP counter via NetAct", zte: "show rtwp", samsung: "show ul-noise",
+    cat: "Command" },
+  { concept: "Display VSWR / port standing-wave",
+    huawei: "DSP VSWR", ericsson: "get RfPort vswr",
+    nokia: "show antenna vswr", zte: "show vswr", samsung: "show vswr",
+    cat: "Command" },
+  { concept: "Display CPU load",
+    huawei: "DSP CPUUSAGE", ericsson: "pmom pmProcCpuLoad",
+    nokia: "show board cpu (NetAct PM)", zte: "show cpu", samsung: "show cpu-load",
+    cat: "Command" },
+  { concept: "List feature toggle switches",
+    huawei: "LST CELLALGOSWITCH / LST ENODEBALGOSWITCH", ericsson: "get . featureState (per Feature MO)",
+    nokia: "Feature activation via NetAct (siteTemplate)", zte: "show feature-list", samsung: "show feature",
+    cat: "Command" },
+  { concept: "List neighbor relations (intra-freq LTE)",
+    huawei: "LST EUTRANINTRAFREQNCELL", ericsson: "get EUtranCellRelation",
+    nokia: "show LNREL", zte: "show ncell", samsung: "show neighbor",
+    cat: "Command" },
+  { concept: "List NR cell config",
+    huawei: "LST NRDUCELL / LST NRCELLALGOSWITCH", ericsson: "get NRCellDU / NRCellCU",
+    nokia: "show NRCELL", zte: "show nrcell", samsung: "show nr-cell",
+    cat: "Command" },
+  { concept: "Save config snapshot (rollback)",
+    huawei: "Auto-save before MOD; manual via SBT", ericsson: "cv mk <name>",
+    nokia: "PLAN / Activate workflow (NetAct)", zte: "save config", samsung: "config save",
+    cat: "Command" }
+];
+
+function renderVendor(){
+  const q = document.getElementById("vendorSearch").value.toLowerCase();
+  const c = document.getElementById("vendorCat").value;
+  const tbody = document.querySelector("#vendorTable tbody");
+  tbody.innerHTML = "";
+  vendorData.forEach(v => {
+    const hay = Object.values(v).join(" ").toLowerCase();
+    if (q && !hay.includes(q)) return;
+    if (c && v.cat !== c) return;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${v.concept}</td>
+      <td>${v.huawei}</td>
+      <td>${v.ericsson}</td>
+      <td>${v.nokia}</td>
+      <td>${v.zte}</td>
+      <td>${v.samsung}</td>
+      <td><span class="mono">${v.cat}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById("vendorSearch").addEventListener("input", renderVendor);
+document.getElementById("vendorCat").addEventListener("change", renderVendor);
+renderVendor();
+
+document.querySelectorAll(".preset-btn")[0].classList.add("active");
+applyPreset(presets["LTE 1800 (B3)"]);
+</script>
+</body>
+</html>
